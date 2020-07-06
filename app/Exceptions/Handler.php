@@ -51,11 +51,14 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof AuthenticationException) {
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], Response::HTTP_UNAUTHORIZED);
+
+        switch ($exception) {
+            case $exception instanceof AuthenticationException:
+                return response()->json(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
+            case $exception instanceof \RuntimeException:
+                return response()->json(['message' => 'Failure: ' . $exception->getMessage()], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
         return parent::render($request, $exception);
     }
 }

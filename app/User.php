@@ -2,10 +2,13 @@
 
 namespace App;
 
+use Illuminate\Container\Container;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
+use Laravel\Passport\Passport;
+use Laravel\Passport\PersonalAccessTokenResult;
 
 /**
  * @property mixed first_name
@@ -40,5 +43,14 @@ class User extends Authenticatable
         $user->save();
 
         return $user;
+    }
+
+    public static function createTokenByPartner(Partner $partner): PersonalAccessTokenResult
+    {
+        Passport::$personalAccessClientId = $partner->clientId;
+        $tokenFactory  = Container::getInstance()->make(\App\Factories\PersonalAccessTokenFactory::class);
+        $personalToken = $tokenFactory->makeForPartner($partner->name, []);
+
+        return $personalToken;
     }
 }
